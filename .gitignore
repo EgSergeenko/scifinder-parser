@@ -1,0 +1,8 @@
+/venv
+
+/data
+/reactions
+/runs
+/log
+
+.env
