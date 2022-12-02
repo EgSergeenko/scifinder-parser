@@ -18,17 +18,19 @@ logger = get_logger(get_logging_config())
 @click.argument('input-filepath', type=click.Path(exists=True))
 @click.argument('output-filepath', type=click.Path())
 @click.option('--headless', default=False, is_flag=True)
-def parse_smiles(input_filepath, output_filepath, headless):
+@click.option('--browser', default='chrome')
+def parse_smiles(input_filepath, output_filepath, headless, browser):
     parser_config = get_parser_config()
 
     start_url = 'https://scifinder-n.cas.org'
 
     logger.info('Input filepath: {0}'.format(input_filepath))
     logger.info('Output filepath: {0}'.format(output_filepath))
+    logger.info('Browser: {0}'.format(browser))
     logger.info('Headless mode: {0}'.format(headless))
     logger.info('Url template: {0}'.format(start_url))
 
-    driver = get_driver(headless)
+    driver = get_driver(browser, headless)
 
     login_page = LoginPage(
         driver,
