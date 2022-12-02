@@ -108,6 +108,7 @@ def parse(pages_string, url_template, headless):
 
     run_info = [
         '<b>RUN INFO</b>',
+        'Pages to parse: {0}'.format(pages_string),
         'Parsed pages number: {0}'.format(len(parsed_pages)),
         'Failed pages number: {0}'.format(len(failed_pages)),
         'Start date: {0}'.format(
