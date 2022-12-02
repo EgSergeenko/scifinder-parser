@@ -1,7 +1,8 @@
 import math
 import re
+import time
 
-from selenium.common import TimeoutException
+from selenium.common import ElementClickInterceptedException, TimeoutException
 from selenium.webdriver.common.by import By
 
 from common.utils import clean_text, get_xpath
@@ -191,9 +192,19 @@ class ResultsPage(BasePage):
             )
             if view_all_button is not None:
                 svg_icon = view_all_button.find('svg')
-                self.click(
-                    (By.XPATH, get_xpath(view_all_button.find('a'))),
-                )
+                for _ in range(self.n_retries):
+                    try:
+                        self.click(
+                            (By.XPATH, get_xpath(view_all_button.find('a'))),
+                        )
+                    except ElementClickInterceptedException:
+                        time.sleep(0.5)
+                    else:
+                        break
+                else:
+                    raise ElementClickInterceptedException(
+                        'Failed to click the "View all" button',
+                    )
                 if svg_icon is not None:
                     reactions.extend(self.parse_dropdown(scheme, scheme_idx))
                 else:
