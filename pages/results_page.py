@@ -1,6 +1,7 @@
 import math
 import re
 
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 
 from common.utils import clean_text, get_xpath
@@ -237,6 +238,15 @@ class ResultsPage(BasePage):
         return reactions
 
     def wait_page_loading(self, page_size):
-        self.wait_elements(
-            self.RESULTS_LIST_ITEM, page_size,
+        for _ in range(self.n_retries):
+            try:
+                return self.wait_elements(
+                    self.RESULTS_LIST_ITEM, page_size,
+                )
+            except TimeoutException:
+                self.refresh()
+        raise TimeoutException(
+            'The page failed to load after {0} retries'.format(
+                self.n_retries,
+            ),
         )

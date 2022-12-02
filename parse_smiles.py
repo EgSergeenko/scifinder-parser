@@ -31,13 +31,22 @@ def parse_smiles(input_filepath, output_filepath, headless):
     driver = get_driver(headless)
 
     login_page = LoginPage(
-        driver, parser_config.timeout, parser_config.poll_frequency,
+        driver,
+        parser_config.timeout,
+        parser_config.poll_frequency,
+        parser_config.n_retries,
     )
     search_page = SearchPage(
-        driver, parser_config.timeout, parser_config.poll_frequency,
+        driver,
+        parser_config.timeout,
+        parser_config.poll_frequency,
+        parser_config.n_retries,
     )
     substance_page = SubstancePage(
-        driver, parser_config.timeout, parser_config.poll_frequency,
+        driver,
+        parser_config.timeout,
+        parser_config.poll_frequency,
+        parser_config.n_retries,
     )
 
     logger.info('Navigating to the start url...')

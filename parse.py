@@ -43,10 +43,16 @@ def parse(pages_string, url_template, headless):
     driver = get_driver(headless)
 
     login_page = LoginPage(
-        driver, parser_config.timeout, parser_config.poll_frequency,
+        driver,
+        parser_config.timeout,
+        parser_config.poll_frequency,
+        parser_config.n_retries,
     )
     results_page = ResultsPage(
-        driver, parser_config.timeout, parser_config.poll_frequency,
+        driver,
+        parser_config.timeout,
+        parser_config.poll_frequency,
+        parser_config.n_retries,
     )
 
     start_datetime = datetime.now()

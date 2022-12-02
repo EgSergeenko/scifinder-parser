@@ -15,6 +15,7 @@ class BasePage(object):
         driver,
         timeout,
         poll_frequency,
+        n_retries,
         page_source_delay=3.0,
     ):
         self._driver = driver
@@ -23,6 +24,7 @@ class BasePage(object):
             timeout,
             poll_frequency,
         )
+        self.n_retries = n_retries
         self.page_source_delay = page_source_delay
 
     def click(self, locator):
@@ -89,3 +91,6 @@ class BasePage(object):
 
     def get_current_url(self):
         return self._driver.current_url
+
+    def refresh(self):
+        self._driver.refresh()
