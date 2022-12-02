@@ -1,6 +1,7 @@
 import math
 import re
 
+from selenium.common import TimeoutException
 from selenium.webdriver.common.by import By
 
 from common.utils import clean_text, get_xpath
@@ -171,11 +172,17 @@ class ResultsPage(BasePage):
                 components.append(component)
         return components
 
+    def parse_conditions_number(self, scheme):
+        conditions_number_text = scheme.find(
+            'span', {'class': 'reaction-title-sub'},
+        ).get_text()
+        return int(re.findall(r'\d+', conditions_number_text)[0])
+
     def parse(self, page_size, subpage_size):
         reactions = []
         for scheme_idx in range(page_size):
             self.wait_page_loading(page_size)
-            main_page_source = self.get_page_source(no_delay=True)
+            main_page_source = self.get_page_source()
             scheme = main_page_source.find_all(
                 self.RESULTS_LIST_ITEM[1],
             )[scheme_idx]
@@ -184,23 +191,33 @@ class ResultsPage(BasePage):
             )
             if view_all_button is not None:
                 svg_icon = view_all_button.find('svg')
-                xpath = get_xpath(view_all_button.find('a'))
-                self.click((By.XPATH, xpath))
+                self.click(
+                    (By.XPATH, get_xpath(view_all_button.find('a'))),
+                )
                 if svg_icon is not None:
-                    main_page_source = self.get_page_source(no_delay=False)
-                    scheme = main_page_source.find_all(
-                        self.RESULTS_LIST_ITEM[1],
-                    )[scheme_idx]
-                    reactions.extend(self.parse_scheme(scheme))
+                    reactions.extend(self.parse_dropdown(scheme, scheme_idx))
                 else:
                     reactions.extend(self.parse_subpage(subpage_size))
             else:
                 reactions.extend(self.parse_scheme(scheme))
         return reactions
 
+    def parse_dropdown(self, scheme, scheme_idx):
+        conditions_number = self.parse_conditions_number(scheme)
+        xpath = "//{0}[@class='{1}']".format(
+            'sf-reaction-summary',
+            scheme['class'][0],
+        )
+        self.wait_elements((By.XPATH, xpath), conditions_number)
+        main_page_source = self.get_page_source()
+        scheme = main_page_source.find_all(
+            self.RESULTS_LIST_ITEM[1],
+        )[scheme_idx]
+        return self.parse_scheme(scheme)
+
     def parse_subpage(self, page_size):
         self.wait_page_loading(1)
-        subpage_source = self.get_page_source(no_delay=True)
+        subpage_source = self.get_page_source()
         subpage_url = '/'.join(
             self.get_current_url().split('/')[:-1],
         )
@@ -208,12 +225,7 @@ class ResultsPage(BasePage):
         scheme = subpage_source.find(
             self.RESULTS_LIST_ITEM[1],
         )
-        conditions_number_text = scheme.find(
-            'span', {'class': 'reaction-title-sub'},
-        ).get_text()
-        conditions_number = int(
-            re.findall(r'\d+', conditions_number_text)[0],
-        )
+        conditions_number = self.parse_conditions_number(scheme)
         pages_number = math.ceil(conditions_number / page_size)
 
         reactions = []
@@ -226,7 +238,7 @@ class ResultsPage(BasePage):
                 )
                 self.go_to(next_page_url)
                 self.wait_page_loading(1)
-                subpage_source = self.get_page_source(no_delay=True)
+                subpage_source = self.get_page_source()
                 scheme = subpage_source.find(
                     self.RESULTS_LIST_ITEM[1],
                 )
@@ -237,6 +249,15 @@ class ResultsPage(BasePage):
         return reactions
 
     def wait_page_loading(self, page_size):
-        self.wait_elements(
-            self.RESULTS_LIST_ITEM, page_size,
+        for _ in range(self.n_retries):
+            try:
+                return self.wait_elements(
+                    self.RESULTS_LIST_ITEM, page_size,
+                )
+            except TimeoutException:
+                self.refresh()
+        raise TimeoutException(
+            'The page failed to load after {0} retries'.format(
+                self.n_retries,
+            ),
         )

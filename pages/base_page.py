@@ -1,5 +1,3 @@
-import time
-
 from bs4 import BeautifulSoup
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -15,7 +13,7 @@ class BasePage(object):
         driver,
         timeout,
         poll_frequency,
-        page_source_delay=3.0,
+        n_retries,
     ):
         self._driver = driver
         self._wait = WebDriverWait(
@@ -23,7 +21,7 @@ class BasePage(object):
             timeout,
             poll_frequency,
         )
-        self.page_source_delay = page_source_delay
+        self.n_retries = n_retries
 
     def click(self, locator):
         element = self._wait.until(
@@ -71,9 +69,7 @@ class BasePage(object):
             visibility_of_elements_located(locator, number),
         )
 
-    def get_page_source(self, no_delay=False):
-        if not no_delay:
-            time.sleep(self.page_source_delay)
+    def get_page_source(self):
         return BeautifulSoup(
             self._driver.page_source, 'html.parser',
         )
@@ -89,3 +85,6 @@ class BasePage(object):
 
     def get_current_url(self):
         return self._driver.current_url
+
+    def refresh(self):
+        self._driver.refresh()

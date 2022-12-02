@@ -14,6 +14,7 @@ class ParserConfig(BaseConfig):
     filename: str = '{0}.txt'.format(
         datetime.now().strftime('%m_%d_%Y__%H_%M_%S'),
     )
+    n_retries: int = 5
 
 
 def get_parser_config():
