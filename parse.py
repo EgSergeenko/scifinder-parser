@@ -23,7 +23,8 @@ logger = get_logger(get_logging_config())
 @click.option('--pages', 'pages_string', required=True)
 @click.option('--url-template', required=True)
 @click.option('--headless', default=False, is_flag=True)
-def parse(pages_string, url_template, headless):
+@click.option('--browser', default='chrome')
+def parse(pages_string, url_template, headless, browser):
     parser_config = get_parser_config()
     storage_config = get_storage_config()
 
@@ -38,9 +39,10 @@ def parse(pages_string, url_template, headless):
     logger.info('Url template: {0}'.format(url_template))
     logger.info('Pages string: {0}'.format(pages_string))
     logger.info('Pages: {0}'.format(pages))
+    logger.info('Browser: {0}'.format(browser))
     logger.info('Headless mode: {0}'.format(headless))
 
-    driver = get_driver(headless)
+    driver = get_driver(browser, headless)
 
     login_page = LoginPage(
         driver,

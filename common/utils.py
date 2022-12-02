@@ -4,9 +4,12 @@ import traceback
 from dataclasses import asdict
 
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.firefox.service import Service as FirefoxService
 from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 
 from common.logging import get_logger
 from config.logging import get_logging_config
@@ -34,15 +37,31 @@ def get_xpath(element):
     return '/{0}'.format('/'.join(components))
 
 
-def get_driver(headless):
-    options = Options()
-    options.add_argument('--start-maximized')
+def get_driver(browser, headless):
+    if browser == 'chrome':
+        options = ChromeOptions()
+    elif browser == 'firefox':
+        options = FirefoxOptions()
+    else:
+        raise ValueError('Unsupported browser: {0}'.format(browser))
     if headless:
         options.add_argument('--headless')
-    return webdriver.Chrome(
-        service=Service(ChromeDriverManager().install()),
-        options=options,
-    )
+    if browser == 'chrome':
+        driver = webdriver.Chrome(
+            service=ChromeService(
+                ChromeDriverManager().install(),
+            ),
+            options=options,
+        )
+    else:
+        driver = webdriver.Firefox(
+            service=FirefoxService(
+                GeckoDriverManager().install(),
+            ),
+            options=options,
+        )
+    driver.maximize_window()
+    return driver
 
 
 def reactions_to_json(reactions, filepath):
