@@ -1,4 +1,7 @@
+import time
+
 from bs4 import BeautifulSoup
+from selenium.common import ElementClickInterceptedException
 from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions
@@ -28,6 +31,18 @@ class BasePage(object):
             expected_conditions.element_to_be_clickable(locator),
         )
         element.click()
+
+    def try_click(self, locator):
+        for _ in range(self.n_retries):
+            try:
+                return self.click(locator)
+            except ElementClickInterceptedException:
+                time.sleep(0.5)
+        raise ElementClickInterceptedException(
+            'Failed to click the element at {0}'.format(
+                locator,
+            ),
+        )
 
     def clear(self, locator):
         element = self._wait.until(
