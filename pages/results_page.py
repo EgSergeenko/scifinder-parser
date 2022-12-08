@@ -163,7 +163,7 @@ class ResultsPage(BasePage):
             component = clean_text(
                 span.get_text(),
             ).removesuffix(' ,')
-            if component.endswith('…'):
+            if component.endswith('…') or component.endswith('…)'):
                 component_link = span.find('a')
                 self.try_click(
                     (By.XPATH, get_xpath(component_link)),
