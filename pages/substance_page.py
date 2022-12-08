@@ -8,7 +8,7 @@ class SubstancePage(BasePage):
 
     def parse_smiles(self):
         self.click(self.EXPAND_BUTTON)
-        page_source = self.get_page_source(no_delay=True)
+        page_source = self.get_page_source()
         return page_source.find(
             'div', {'class': 'smiles-text'},
         ).get_text()
