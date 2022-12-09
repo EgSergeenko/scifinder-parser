@@ -58,27 +58,33 @@ def parse_smiles(input_filepath, output_filepath, headless, browser):
     login_page.login(parser_config.username, parser_config.password)
 
     df = pd.read_csv(input_filepath)
-    results = []
 
-    for idx, cas_number in enumerate(df['query']):
+    with open(output_filepath, 'a') as output_file:
+        output_file.write(
+            '{0}{1}'.format(
+                ','.join(['query', 'result']), '\n',
+            ),
+        )
+
+    for idx, query in enumerate(df['query']):
         logger.info(
             '{0}/{1}... Parsing smiles for {2}'.format(
-                idx + 1, len(df['query']), cas_number,
+                idx + 1, len(df['query']), query,
             ),
         )
         single_result = search_page.search_substance(
-            cas_number, first_page=idx == 0,
+            query, first_page=idx == 0,
         )
         result = 'Multiple results'
         if single_result:
             result = substance_page.parse_smiles()
-        results.append(result)
 
-    df['result'] = results
-    df.to_csv(output_filepath, index=False)
-
-    logger.info('Saved data locally...')
-    logger.info('Local filepath: {0}'.format(output_filepath))
+        with open(output_filepath, 'a') as output_file:
+            output_file.write(
+                '{0}{1}'.format(
+                    ','.join([query, result]), '\n',
+                ),
+            )
 
     run_info = [
         '<b>RUN INFO</b>',
