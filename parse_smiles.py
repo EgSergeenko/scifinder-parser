@@ -1,4 +1,5 @@
 import sys
+import traceback
 
 import click
 import pandas as pd
@@ -59,12 +60,7 @@ def parse_smiles(input_filepath, output_filepath, headless, browser):
 
     df = pd.read_csv(input_filepath)
 
-    with open(output_filepath, 'a') as output_file:
-        output_file.write(
-            '{0}{1}'.format(
-                ','.join(['query', 'result']), '\n',
-            ),
-        )
+    write_line(output_filepath, 'query', 'result')
 
     for idx, query in enumerate(df['query']):
         logger.info(
@@ -72,19 +68,33 @@ def parse_smiles(input_filepath, output_filepath, headless, browser):
                 idx + 1, len(df['query']), query,
             ),
         )
-        single_result = search_page.search_substance(
-            query, first_page=idx == 0,
-        )
+        try:
+            single_result = search_page.search_substance(
+                query, first_page=idx == 0,
+            )
+        except Exception:
+            result = 'Error'
+            error_message = traceback.format_exc()
+            logger.error('An error occurred while searching a substance')
+            logger.error(error_message)
+            logger.info('Navigating to the start url...')
+            driver.get(start_url)
+            write_line(output_filepath, query, result)
+            continue
+
         result = 'Multiple results'
         if single_result:
-            result = substance_page.parse_smiles()
+            try:
+                result = substance_page.parse_smiles()
+            except Exception:
+                result = 'Error'
+                error_message = traceback.format_exc()
+                logger.error('An error occurred while parsing SMILES')
+                logger.error(error_message)
+                logger.info('Navigating to the start url...')
+                driver.get(start_url)
 
-        with open(output_filepath, 'a') as output_file:
-            output_file.write(
-                '{0}{1}'.format(
-                    ','.join([query, result]), '\n',
-                ),
-            )
+        write_line(output_filepath, query, result)
 
     run_info = [
         '<b>RUN INFO</b>',
@@ -94,6 +104,15 @@ def parse_smiles(input_filepath, output_filepath, headless, browser):
     logger.critical('\n'.join(run_info))
 
     driver.quit()
+
+
+def write_line(output_filepath, query, result):
+    with open(output_filepath, 'a') as output_file:
+        output_file.write(
+            '{0}{1}'.format(
+                ','.join([query, result]), '\n',
+            ),
+        )
 
 
 if __name__ == '__main__':
