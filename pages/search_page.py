@@ -23,7 +23,6 @@ class SearchPage(BasePage):
         self.fill_text_input(self.SEARCH_INPUT, query)
         self.click(self.SEARCH_BUTTON)
         self.wait_element(self.SUBSTANCE_LINK)
-        if len(self.find_elements(self.SUBSTANCE_LINK)) == 1:
-            self.click(self.SUBSTANCE_LINK)
-            return True
-        return False
+        single_result = len(self.find_elements(self.SUBSTANCE_LINK)) == 1
+        self.click(self.SUBSTANCE_LINK)
+        return single_result
