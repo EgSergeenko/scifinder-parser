@@ -1,3 +1,6 @@
+import random
+import time
+
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 
@@ -22,7 +25,9 @@ class SearchPage(BasePage):
         self.clear(self.SEARCH_INPUT)
         self.fill_text_input(self.SEARCH_INPUT, query)
         self.click(self.SEARCH_BUTTON)
+        time.sleep(random.uniform(0.5, 1))
         self.wait_element(self.SUBSTANCE_LINK)
         single_result = len(self.find_elements(self.SUBSTANCE_LINK)) == 1
         self.click(self.SUBSTANCE_LINK)
+        time.sleep(random.uniform(0.5, 1))
         return single_result

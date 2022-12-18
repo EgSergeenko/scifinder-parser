@@ -58,7 +58,7 @@ def parse_smiles(input_filepath, output_filepath, headless, browser):
     logger.info('Filling out the login form...')
     login_page.login(parser_config.username, parser_config.password)
 
-    df = pd.read_csv(input_filepath)
+    df = pd.read_csv(input_filepath, delimiter='\t')
 
     write_line(output_filepath, 'query', 'result', 'comment')
 
@@ -111,11 +111,11 @@ def parse_smiles(input_filepath, output_filepath, headless, browser):
     driver.quit()
 
 
-def write_line(output_filepath, query, result, comment):
+def write_line(output_filepath, query, result, comment, delimiter='\t'):
     with open(output_filepath, 'a') as output_file:
         output_file.write(
             '{0}{1}'.format(
-                ','.join([query, result, comment]), '\n',
+                delimiter.join([query, result, comment]), '\n',
             ),
         )
 
