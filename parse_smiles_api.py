@@ -61,6 +61,13 @@ def parse_smiles_api(input_filepath, output_filepath):
 
         write_line(output_filepath, query, result, comment)
 
+    run_info = [
+        '<b>RUN INFO</b>',
+        'parse_smiles_api.py execution has finished',
+    ]
+
+    logger.critical('\n'.join(run_info))
+
 
 def search_substance(url):
     cas_number, comment = '', 'Error'
