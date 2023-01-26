@@ -5,7 +5,7 @@ import click
 import pandas as pd
 
 from common.logging import get_logger
-from common.utils import get_driver, notification_hook
+from common.utils import get_driver, notification_hook, write_line
 from config.logging import get_logging_config
 from config.parser import get_parser_config
 from pages.login_page import LoginPage
@@ -109,15 +109,6 @@ def parse_smiles(input_filepath, output_filepath, headless, browser):
     logger.critical('\n'.join(run_info))
 
     driver.quit()
-
-
-def write_line(output_filepath, query, result, comment, delimiter='\t'):
-    with open(output_filepath, 'a') as output_file:
-        output_file.write(
-            '{0}{1}'.format(
-                delimiter.join([query, result, comment]), '\n',
-            ),
-        )
 
 
 if __name__ == '__main__':
