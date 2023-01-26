@@ -150,3 +150,12 @@ def parse_pages_string(pages_string):
             for page in range(int(pages_range[0]), int(pages_range[1]) + 1):
                 pages.add(page)
     return sorted(pages)
+
+
+def write_line(output_filepath, query, result, comment, delimiter='\t'):
+    with open(output_filepath, 'a') as output_file:
+        output_file.write(
+            '{0}{1}'.format(
+                delimiter.join([query, result, comment]), '\n',
+            ),
+        )
