@@ -104,8 +104,9 @@ def get_substance(url):
 
     if response.ok:
         data = response.json()
-        if 'smile' in data:
-            result, comment = data['smile'], ''
+        smiles = data.get('smile', '')
+        if smiles:
+            result, comment = smiles, ''
         else:
             comment = 'Not found'
     elif response.status_code == HTTPStatus.NOT_FOUND:
